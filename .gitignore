@@ -1,0 +1,20 @@
+# Java build outputs
+/target
+*.class
+*.jar
+*.war
+*.ear
+
+# Logs
+*.log
+
+# IntelliJ project files
+.idea/
+*.iml
+
+# macOS system files
+.DS_Store
+
+# Backup / temp files
+*.swp
+*.tmp
