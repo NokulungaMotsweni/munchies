@@ -1,11 +1,30 @@
 package munchies.model;
-/*
- * Represents a single item inside an Order.
- * An OrderItem links a MenuItem with a quantity and
- * is used to calculate the order subtotal and final total.
- *
- * This class forms part of the shared base model used by all team members.
- */
+
+import java.math.BigDecimal;
+
 public class OrderItem {
-    // fields, constructors, getters/setters will go here
+
+    private final MenuItem menuItem; // MenuItem being ordered
+    private final int quantity; // How many units of the menuItem are ordered
+
+    public OrderItem(MenuItem menuItem, int quantity) {
+        this.menuItem = menuItem; // Assigns the menuItem.
+        this.quantity = quantity; // Assigns the quantity
+    }
+
+    public MenuItem getMenuItem() {
+        // Returns the menu item associated with this order line
+        return menuItem;
+    }
+
+    public int getQuantity() {
+        // Returns how many units of the menu item were ordered
+        return quantity;
+    }
+
+    public BigDecimal getLineTotal() {
+        // Calculates the total price for this order line (price * quantity)
+        return menuItem.getPrice().multiply(BigDecimal.valueOf(quantity));
+    }
+
 }
