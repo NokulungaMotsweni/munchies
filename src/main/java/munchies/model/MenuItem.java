@@ -3,20 +3,27 @@ package munchies.model;
 import java.math.BigDecimal;
 
 public class MenuItem {
-    private String id; // MenuItem unique identifier
-    private String name; // e.g "Cheese Burger"
-    private String description; // May or may not be added depending on the restaurant
-    private BigDecimal price; // The cost of the MenuItem
-    private boolean available; // Shows the availability of the itm
+    private final String id; // MenuItem unique identifier
+    private final String name; // e.g "Cheese Burger"
+    private final String description; // May or may not be added depending on the restaurant
+    private final BigDecimal price; // The cost of the MenuItem
+    private final boolean available; // Shows the availability of the itm
 
+    public MenuItem(String id, String name, String description, BigDecimal price, boolean available) {
+        this.id = id; // Assigns the menu item ID
+        this.name = name; // Assigns the display name of the MenuItem
+        this.description = description; // Assign description of the MenuItem (if applicable)
+        this.price = price; // Assigns the price of the MenuItem
+        this.available = available; // Assigns the availability of said MenuItem
+    }
 
     public String getId() {
-        // Unique identifier for this MenuItem
+        // Returns the identifier for this MenuItem
         return id;
     }
 
     public String getName() {
-        // Display name of the MenuItem
+        // Returns the display name of the MenuItem
         return name;
     }
 
@@ -26,7 +33,7 @@ public class MenuItem {
     }
 
     public BigDecimal getPrice() {
-        // Price if the MenuItem returned as a BigDecimal for currency accuracy
+        // Returns the price of the MenuItem returned as a BigDecimal for currency accuracy
         return price;
     }
 
