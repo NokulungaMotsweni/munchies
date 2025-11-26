@@ -1,7 +1,19 @@
 package munchies;
 
+import munchies.cli.MunchiesCLI;
+import munchies.config.DemoDataLoader;
+import munchies.service.RestaurantRepository;
+
 public class Main {
     public static void main(String[] args) {
-        System.out.println("Welcome to Munchies!");
+        // Creates repository
+        RestaurantRepository restaurantRepository = new RestaurantRepository();
+
+        // Loads restaurants and menu items
+        DemoDataLoader.loadDemoData(restaurantRepository);
+
+        // Starts the CLI skeleton
+        MunchiesCLI cli = new MunchiesCLI(restaurantRepository);
+        cli.run();
     }
 }
