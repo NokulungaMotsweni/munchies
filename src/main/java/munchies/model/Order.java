@@ -36,7 +36,7 @@ public class Order {
 
     /*
     * Basic subtotal calculation without discounts.
-    * Discount strategies will be applied in the service layer (Ahmed)
+    * DiscountStrategy strategies will be applied in the service layer (Ahmed)
      */
     public BigDecimal calculateSubtotal() {
         BigDecimal subtotal = BigDecimal.ZERO;
