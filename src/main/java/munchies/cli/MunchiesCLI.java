@@ -7,7 +7,6 @@ import munchies.model.MenuItem;
 import java.util.List;
 import java.util.Scanner;
 
-
 public class MunchiesCLI {
 
     private final RestaurantRepository restaurantRepository;
@@ -16,7 +15,6 @@ public class MunchiesCLI {
     public MunchiesCLI(RestaurantRepository restaurantRepository) {
         this.restaurantRepository = restaurantRepository;
     }
-
 
     public void run() {
         boolean running = true;
@@ -33,11 +31,18 @@ public class MunchiesCLI {
             String choice = scanner.nextLine().trim();
 
             switch (choice) {
-                case "1" -> listRestaurants();
-                case "2" -> browseMenu();
+                case "1" -> {
+                    listRestaurants();
+                    waitForEnterToReturn();
+                }
+                case "2" -> {
+                    browseMenu();
+                    waitForEnterToReturn();
+                }
                 case "3" -> {
                     // placeholder for later F3/F5 work
                     System.out.println("Order creation will be added later.");
+                    waitForEnterToReturn();
                 }
                 case "4" -> {
                     System.out.println("Goodbye!");
@@ -48,7 +53,9 @@ public class MunchiesCLI {
         }
     }
 
-
+    /**
+     * F1 – List restaurants.
+     */
     public void listRestaurants() {
         List<Restaurant> restaurants = restaurantRepository.getAll();
 
@@ -57,14 +64,16 @@ public class MunchiesCLI {
             return;
         }
 
-        System.out.println("\nAvailable restaurants:");
+        System.out.println("\n=== Available restaurants ===");
         for (int i = 0; i < restaurants.size(); i++) {
             Restaurant r = restaurants.get(i);
             System.out.printf("%d. %s%n", i + 1, r.getName());
         }
     }
 
-
+    /**
+     * F2/F4 – Browse menu for a selected restaurant.
+     */
     public void browseMenu() {
         List<Restaurant> restaurants = restaurantRepository.getAll();
 
@@ -78,7 +87,7 @@ public class MunchiesCLI {
         for (int i = 0; i < restaurants.size(); i++) {
             System.out.printf("%d. %s%n", i + 1, restaurants.get(i).getName());
         }
-        System.out.print("Enter number (or 0 to cancel): ");
+        System.out.print("Enter number (or 0 to go back): ");
 
         int choice;
         try {
@@ -89,7 +98,8 @@ public class MunchiesCLI {
         }
 
         if (choice == 0) {
-            System.out.println("Cancelled.");
+            // Go back to main menu
+            System.out.println("Returning to main menu.");
             return;
         }
         if (choice < 1 || choice > restaurants.size()) {
@@ -115,14 +125,24 @@ public class MunchiesCLI {
             } else {
                 description = " — " + description;
             }
-            System.out.printf("%d. %s (%.2f)%s%n",
+            System.out.printf(
+                    "%d. %s (%.2f)%s%n",
                     i + 1,
                     item.getName(),
                     item.getPrice(),
-                    description);
+                    description
+            );
         }
 
         System.out.println("\n(Dish selection will be implemented later as part of F3/F5.)");
+    }
+
+    /**
+     * Small helper to make the "go back home" behaviour explicit.
+     */
+    private void waitForEnterToReturn() {
+        System.out.println("\nPress Enter to return to the main menu...");
+        scanner.nextLine();
     }
 
     /*
