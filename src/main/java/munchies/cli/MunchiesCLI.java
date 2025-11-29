@@ -16,35 +16,26 @@ public class MunchiesCLI {
         this.restaurantRepository = restaurantRepository;
     }
 
+    /**
+     * Main loop:
+     * 1 - Restaurants
+     * 0 - Exit
+     */
     public void run() {
         boolean running = true;
 
         while (running) {
             System.out.println();
             System.out.println("=== Munchies CLI ===");
-            System.out.println("1. List restaurants");
-            System.out.println("2. Browse restaurant menu");
-            System.out.println("3. Create order (coming soon)");
-            System.out.println("4. Exit");
+            System.out.println("1. Restaurants");
+            System.out.println("0. Exit");
             System.out.print("Select option: ");
 
             String choice = scanner.nextLine().trim();
 
             switch (choice) {
-                case "1" -> {
-                    listRestaurants();
-                    waitForEnterToReturn();
-                }
-                case "2" -> {
-                    browseMenu();
-                    waitForEnterToReturn();
-                }
-                case "3" -> {
-                    // placeholder for later F3/F5 work
-                    System.out.println("Order creation will be added later.");
-                    waitForEnterToReturn();
-                }
-                case "4" -> {
+                case "1" -> browseRestaurants();
+                case "0" -> {
                     System.out.println("Goodbye!");
                     running = false;
                 }
@@ -54,9 +45,10 @@ public class MunchiesCLI {
     }
 
     /**
-     * F1 – List restaurants.
+     * Shows all restaurants and lets the user pick one by number.
+     * 0 always goes back to the main menu.
      */
-    public void listRestaurants() {
+    private void browseRestaurants() {
         List<Restaurant> restaurants = restaurantRepository.getAll();
 
         if (restaurants.isEmpty()) {
@@ -64,53 +56,44 @@ public class MunchiesCLI {
             return;
         }
 
-        System.out.println("\n=== Available restaurants ===");
-        for (int i = 0; i < restaurants.size(); i++) {
-            Restaurant r = restaurants.get(i);
-            System.out.printf("%d. %s%n", i + 1, r.getName());
+        boolean inRestaurantMenu = true;
+        while (inRestaurantMenu) {
+            System.out.println("\n=== Restaurants ===");
+            for (int i = 0; i < restaurants.size(); i++) {
+                System.out.printf("%d. %s%n", i + 1, restaurants.get(i).getName());
+            }
+            System.out.println("0. Back to main menu");
+            System.out.print("Select restaurant: ");
+
+            int choice;
+            try {
+                choice = Integer.parseInt(scanner.nextLine());
+            } catch (NumberFormatException ex) {
+                System.out.println("Invalid input.");
+                continue;
+            }
+
+            if (choice == 0) {
+                // back to main menu
+                inRestaurantMenu = false;
+            } else if (choice < 0 || choice > restaurants.size()) {
+                System.out.println("Invalid restaurant selection.");
+            } else {
+                Restaurant selected = restaurants.get(choice - 1);
+                showMenuFor(selected);
+                // after showing the menu, loop again to let user pick another restaurant or 0
+            }
         }
     }
 
     /**
-     * F2/F4 – Browse menu for a selected restaurant.
+     * Shows menu items for a given restaurant.
+     * 0 goes back to the restaurant list.
      */
-    public void browseMenu() {
-        List<Restaurant> restaurants = restaurantRepository.getAll();
+    private void showMenuFor(Restaurant restaurant) {
+        List<MenuItem> menuItems = restaurant.getMenuItems(); // adjust name if needed
 
-        if (restaurants.isEmpty()) {
-            System.out.println("No restaurants available.");
-            return;
-        }
-
-        // Show restaurants
-        System.out.println("\nSelect a restaurant to view its menu:");
-        for (int i = 0; i < restaurants.size(); i++) {
-            System.out.printf("%d. %s%n", i + 1, restaurants.get(i).getName());
-        }
-        System.out.print("Enter number (or 0 to go back): ");
-
-        int choice;
-        try {
-            choice = Integer.parseInt(scanner.nextLine());
-        } catch (NumberFormatException ex) {
-            System.out.println("Invalid input.");
-            return;
-        }
-
-        if (choice == 0) {
-            // Go back to main menu
-            System.out.println("Returning to main menu.");
-            return;
-        }
-        if (choice < 1 || choice > restaurants.size()) {
-            System.out.println("Invalid restaurant selection.");
-            return;
-        }
-
-        Restaurant selected = restaurants.get(choice - 1);
-        List<MenuItem> menuItems = selected.getMenuItems(); // adjust if method name differs
-
-        System.out.println("\n=== MENU: " + selected.getName() + " ===");
+        System.out.println("\n=== MENU: " + restaurant.getName() + " ===");
 
         if (menuItems.isEmpty()) {
             System.out.println("This restaurant currently has no menu items.");
@@ -134,25 +117,14 @@ public class MunchiesCLI {
             );
         }
 
-        System.out.println("\n(Dish selection will be implemented later as part of F3/F5.)");
-    }
-
-    /**
-     * Small helper to make the "go back home" behaviour explicit.
-     */
-    private void waitForEnterToReturn() {
-        System.out.println("\nPress Enter to return to the main menu...");
+        System.out.println("0. Back to restaurants");
+        System.out.print("Select 0 to go back: ");
+        // we just read and ignore the value; any input returns to restaurant list
         scanner.nextLine();
     }
 
-    /*
-     * Future extension:
-     * - selecting menu items
-     * - creating orders
-     * - displaying order summaries
-     * - integrating with Ahmed’s payment + discount logic
-     */
+    // placeholder for future F3/F5 order creation etc.
     public void createOrder() {
-        // TODO Dren: Order creation flow (F3/F5) will be implemented after model is ready.
+        // TODO: will be implemented later
     }
 }
