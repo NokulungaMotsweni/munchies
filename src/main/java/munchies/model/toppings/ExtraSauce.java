@@ -7,7 +7,7 @@ import java.math.BigDecimal;
 // Adds Extra Sauce to the dish.
 public class ExtraSauce extends ToppingDecorator {
 
-    private ExtraSauce(Dish dish) {
+    public ExtraSauce(Dish dish) {
         super(dish);
     }
 
