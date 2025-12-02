@@ -12,10 +12,6 @@ public class Bacon  extends ToppingDecorator {
         super(dish);
     }
 
-    @Override
-    public String getName() {
-        return dish.getName();
-    }
 
     public BigDecimal getPrice() {
         return dish.getPrice().add(toppingPrice);
