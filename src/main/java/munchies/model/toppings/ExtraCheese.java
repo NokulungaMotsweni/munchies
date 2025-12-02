@@ -31,6 +31,6 @@ public class ExtraCheese extends ToppingDecorator {
 
     @Override
     protected String getToppingName() {
-        return "Extra Cheese";
+        return "Extra Cheese (+" + toppingPrice + " CZK)\"";
     }
 }
