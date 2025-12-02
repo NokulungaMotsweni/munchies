@@ -1,4 +1,26 @@
 package munchies.model.toppings;
 
-public class Bacon {
+import munchies.model.Dish;
+
+import java.math.BigDecimal;
+
+public class Bacon  extends ToppingDecorator {
+
+    public Bacon(Dish dish) {
+        super(dish);
+    }
+
+    @Override
+    public String getName() {
+        return dish.getName() + " + Bacon";
+    }
+
+    public BigDecimal getPrice() {
+        return dish.getPrice().add(new BigDecimal("50.00"));
+    }
+
+    @Override
+    protected String getToppingName() {
+        return "Bacon";
+    }
 }
