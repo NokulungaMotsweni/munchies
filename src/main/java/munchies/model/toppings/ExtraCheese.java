@@ -17,7 +17,7 @@ public class ExtraCheese extends ToppingDecorator {
     // Returns the name of the dish with the added topping
     @Override
     public String getName() {
-        return dish.getName() + " + Extra Cheese:";
+        return dish.getName();
     }
 
     // Returns the price of the dish, including the topping cost
