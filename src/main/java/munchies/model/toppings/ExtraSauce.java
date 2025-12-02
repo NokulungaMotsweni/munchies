@@ -18,7 +18,7 @@ public class ExtraSauce extends ToppingDecorator {
 
     @Override
     public BigDecimal getPrice() {
-        return dish.getPrice().add(new BigDecimal("10.00")); // or whatever price you choose
+        return dish.getPrice().add(new BigDecimal("25.00"));
     }
 
     @Override
