@@ -9,7 +9,7 @@ import java.util.List;
  */
 public class OrderItem {
 
-    private final Dish dish; // can be BaseDish or a decorated dish
+    private final Dish dish; // can be BaseDish or a decorated dish with topping
 
     public OrderItem(Dish dish) {
         this.dish = dish;
