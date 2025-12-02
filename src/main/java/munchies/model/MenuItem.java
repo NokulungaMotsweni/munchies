@@ -7,6 +7,7 @@ public class MenuItem {
     private final String name; // e.g "Cheese Burger"
     private final String description; // May or may not be added depending on the restaurant
     private final BigDecimal price; // The cost of the MenuItem
+    private final String type; // The type of dietary category of the MenuItem
     private final boolean available; // Shows the availability of the itm
 
     public MenuItem(String id, String name, String description, BigDecimal price, boolean available) {
