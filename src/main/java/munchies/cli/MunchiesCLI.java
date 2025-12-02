@@ -103,7 +103,7 @@ public class MunchiesCLI {
         for (int i = 0; i < menuItems.size(); i++) {
             MenuItem item = menuItems.get(i);
             String description = item.getDescription();
-            if (description == null) {
+            if (description == null || description.isEmpty())  {
                 description = "";
             } else {
                 description = " — " + description;
