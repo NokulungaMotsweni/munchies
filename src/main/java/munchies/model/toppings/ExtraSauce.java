@@ -23,7 +23,7 @@ public class ExtraSauce extends ToppingDecorator {
 
     @Override
     protected String getToppingName() {
-        return "Extra Cheese";
+        return "Extra Sauce";
     }
 
 }
