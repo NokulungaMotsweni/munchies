@@ -114,10 +114,10 @@ public class MunchiesCLI {
             String priceText = price != null ? price.toPlainString() + " CZK" : "N/A";
 
             System.out.printf(
-                    "%d. %s (%.2f)%s%n",
+                    "%d. %s (%s)%s%n",
                     i + 1,
                     item.getName(),
-                    item.getPrice(),
+                    priceText,
                     description
             );
         }
