@@ -12,7 +12,7 @@ public class Bacon  extends ToppingDecorator {
 
     @Override
     public String getName() {
-        return dish.getName() + " + Bacon";
+        return dish.getName();
     }
 
     public BigDecimal getPrice() {
