@@ -17,6 +17,7 @@ public class MenuItem {
         this.name = name; // Assigns the display name of the MenuItem
         this.description = description; // Assign description of the MenuItem (if applicable)
         this.price = price; // Assigns the price of the MenuItem
+        this.type = type; // Assigns Type to the MenuItem
         this.available = available; // Assigns the availability of said MenuItem
     }
 
