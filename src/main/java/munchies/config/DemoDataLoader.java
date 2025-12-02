@@ -93,7 +93,6 @@ public class DemoDataLoader {
 
     private static Restaurant createBurgerShack() {
         // Sample menu items for Burger Shack
-        // BURGER SHACK MENU ITEMS (F2 + F4)
         MenuItem b1 = new MenuItem(
                 "BG1",
                 "Beef Burger",
@@ -112,7 +111,6 @@ public class DemoDataLoader {
                 true
         );
 
-// Additional 5 dishes (1 unavailable)
         MenuItem p3 = new MenuItem(
                 "PZ3",
                 "BBQ Chicken Pizza Slice",
