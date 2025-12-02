@@ -1,4 +1,34 @@
 package munchies.model.toppings;
 
-public class ExtraCheese {
+import munchies.model.Dish;
+
+import java.math.BigDecimal;
+
+/**
+ * Topping that adds extra cheese to a dish.
+ */
+public class ExtraCheese extends ToppingDecorator {
+
+    // Wraps the chose dish with an ExtraCheese topping
+    public ExtraCheese(Dish dish) {
+        super(dish);
+    }
+
+    // Returns the name of the dish with the added topping
+    @Override
+    public String getName() {
+        return dish.getName() + " + Extra Cheese:";
+    }
+
+    // Returns the price of the dish, including the topping cost
+    @Override
+    public BigDecimal getPrice() {
+        // Add the topping price to the wrapped dish's price in CZK
+        return dish.getPrice().add(new BigDecimal("25.00"));
+    }
+
+    @Override
+    protected String getToppingName() {
+        return "Extra Cheese";
+    }
 }
