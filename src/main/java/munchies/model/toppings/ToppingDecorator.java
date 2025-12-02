@@ -3,6 +3,8 @@ package munchies.model.toppings;
 import munchies.model.Dish;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A base class for toppings that wrap another Dish.
