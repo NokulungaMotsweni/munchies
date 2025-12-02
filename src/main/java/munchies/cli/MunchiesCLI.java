@@ -6,6 +6,7 @@ import munchies.model.MenuItem;
 
 import java.util.List;
 import java.util.Scanner;
+import java.math.BigDecimal;
 
 public class MunchiesCLI {
 
@@ -103,16 +104,20 @@ public class MunchiesCLI {
         for (int i = 0; i < menuItems.size(); i++) {
             MenuItem item = menuItems.get(i);
             String description = item.getDescription();
-            if (description == null) {
+            if (description == null || description.isEmpty())  {
                 description = "";
             } else {
                 description = " — " + description;
             }
+
+            BigDecimal price = item.getPrice();
+            String priceText = price != null ? price.toPlainString() + " CZK" : "N/A";
+
             System.out.printf(
-                    "%d. %s (%.2f)%s%n",
+                    "%d. %s (%s)%s%n",
                     i + 1,
                     item.getName(),
-                    item.getPrice(),
+                    priceText,
                     description
             );
         }
