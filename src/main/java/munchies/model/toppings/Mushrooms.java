@@ -12,7 +12,7 @@ public class Mushrooms extends ToppingDecorator {
 
     @Override
     public String getName() {
-        return dish.getName() + " + Mushrooms";
+        return dish.getName();
     }
 
     @Override
