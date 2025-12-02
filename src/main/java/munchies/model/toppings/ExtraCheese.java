@@ -9,6 +9,8 @@ import java.math.BigDecimal;
  */
 public class ExtraCheese extends ToppingDecorator {
 
+    private final BigDecimal toppingPrice = new BigDecimal("20.00");
+
     // Wraps the chose dish with an ExtraCheese topping
     public ExtraCheese(Dish dish) {
         super(dish);
@@ -24,7 +26,7 @@ public class ExtraCheese extends ToppingDecorator {
     @Override
     public BigDecimal getPrice() {
         // Add the topping price to the wrapped dish's price in CZK
-        return dish.getPrice().add(new BigDecimal("25.00"));
+        return dish.getPrice().add(toppingPrice);
     }
 
     @Override
