@@ -27,9 +27,7 @@ public class OrderItem {
         return dish.getToppings();
     }
 
-    /**
-     * Prints the dish name & price, followed by its toppings indented beneath.
-     */
+    // Prints the dish name & price, followed by its toppings indented beneath.
     public void printItem() {
         System.out.println(getName() + " (" + getLineTotal() + " CZK)");
 
