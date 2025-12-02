@@ -10,7 +10,9 @@ public class MenuItem {
     private final String type; // The type of dietary category of the MenuItem
     private final boolean available; // Shows the availability of the itm
 
-    public MenuItem(String id, String name, String description, BigDecimal price, boolean available) {
+
+    public MenuItem(String id, String name, String description, BigDecimal price, String type,
+                    boolean available) {
         this.id = id; // Assigns the menu item ID
         this.name = name; // Assigns the display name of the MenuItem
         this.description = description; // Assign description of the MenuItem (if applicable)
