@@ -45,4 +45,16 @@ public class Order {
         }
         return subtotal;
     }
+
+    public void printOrderSummary() {
+        System.out.println("=== Order " + orderId + " ===");
+
+        for (OrderItem item : items) {
+            item.printItem();
+            System.out.println();
+        }
+
+        System.out.println("Subtotal: " + calculateSubtotal() + " CZK");
+    }
+
 }
