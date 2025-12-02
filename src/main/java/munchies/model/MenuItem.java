@@ -41,5 +41,13 @@ public class MenuItem {
         return price;
     }
 
+    public boolean isAvailable() {
+        return available;
+    }
+
+    public String getType() {
+        return type;
+    }
+
     // Setters will be added later if the MenuItem should support updates or configuration changes.
 }
