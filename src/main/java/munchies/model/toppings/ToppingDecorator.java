@@ -30,4 +30,14 @@ public abstract class ToppingDecorator implements Dish {
     public BigDecimal getPrice() {
         return dish.getPrice();
     }
+
+    @Override
+    public List<String> getToppings() {
+        List<String> toppings = new ArrayList<>(dish.getToppings());
+        toppings.add(getToppingName());
+        return toppings;
+    }
+
+    // Each topping class only overrides this method
+    protected abstract String getToppingName();
 }
