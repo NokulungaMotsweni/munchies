@@ -6,6 +6,8 @@ import java.math.BigDecimal;
 
 public class Bacon  extends ToppingDecorator {
 
+    private final BigDecimal toppingPrice = new BigDecimal("25.00");
+
     public Bacon(Dish dish) {
         super(dish);
     }
@@ -16,7 +18,7 @@ public class Bacon  extends ToppingDecorator {
     }
 
     public BigDecimal getPrice() {
-        return dish.getPrice().add(new BigDecimal("50.00"));
+        return dish.getPrice().add(toppingPrice);
     }
 
     @Override
