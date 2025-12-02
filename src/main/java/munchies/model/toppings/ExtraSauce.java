@@ -13,7 +13,7 @@ public class ExtraSauce extends ToppingDecorator {
 
     @Override
     public String getName() {
-        return dish.getName() + " + Extra Sauce";
+        return dish.getName();
     }
 
     @Override
