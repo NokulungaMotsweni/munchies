@@ -7,23 +7,20 @@ import java.math.BigDecimal;
 // Adds Extra Sauce to the dish.
 public class ExtraSauce extends ToppingDecorator {
 
+    private final BigDecimal toppingPrice = new BigDecimal("25.00");
+
     public ExtraSauce(Dish dish) {
         super(dish);
     }
 
     @Override
-    public String getName() {
-        return dish.getName();
-    }
-
-    @Override
     public BigDecimal getPrice() {
-        return dish.getPrice().add(new BigDecimal("25.00"));
+        return dish.getPrice().add(toppingPrice);
     }
 
     @Override
     protected String getToppingName() {
-        return "Extra Sauce";
+        return "Extra Sauce (+" + toppingPrice + " CZK)";
     }
 
 }
