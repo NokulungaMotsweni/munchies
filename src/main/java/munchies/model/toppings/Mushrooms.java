@@ -6,22 +6,19 @@ import java.math.BigDecimal;
 // Adds Mushroom topping to a Dish.
 public class Mushrooms extends ToppingDecorator {
 
+    private final BigDecimal toppingPrice = new BigDecimal("18.00");
+
     public Mushrooms(Dish dish) {
         super(dish);
     }
 
     @Override
-    public String getName() {
-        return dish.getName();
-    }
-
-    @Override
     public BigDecimal getPrice() {
-        return dish.getPrice().add(new BigDecimal("18.00"));
+        return dish.getPrice().add(toppingPrice);
     }
 
     @Override
     protected String getToppingName() {
-        return "Mushrooms";
+        return "Mushrooms (+" + toppingPrice + " CZK)";
     }
 }
