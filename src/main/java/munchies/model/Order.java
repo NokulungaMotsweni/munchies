@@ -1,6 +1,7 @@
 package munchies.model;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,7 +12,7 @@ public class Order {
     private final List<OrderItem> items = new ArrayList<>(); // Items that have been added to the order
     private OrderStatus status = OrderStatus.NEW; // Current lifecyle state of the order
 
-    public Order(String orderId) {
+    public Order() {
         this.orderId = "ORD-" + NEXT_ID++;   // Assigns the order an identifier
     }
 
@@ -39,6 +40,13 @@ public class Order {
         this.status = status;
     }
 
+    public void removeItem(int index) {
+        if (index < 0 || index >= items.size()) {
+            throw new IllegalArgumentException("Invalid item index: " + index);
+        }
+        items.remove(index);
+    }
+
     /*
     * Basic subtotal calculation without discounts.
     * DiscountStrategy strategies will be applied in the service layer (Ahmed)
@@ -52,14 +60,22 @@ public class Order {
     }
 
     public void printOrderSummary() {
-        System.out.println("=== Order " + orderId + " ===");
+        System.out.println("=================================");
+        System.out.println(" Order ID: " + orderId);
+        System.out.println(" Order Status: " + status);
+        System.out.println("=================================");
+
+        int index = 1;
 
         for (OrderItem item : items) {
+            System.out.printf("%d. ", index++);
             item.printItem();
             System.out.println();
         }
 
-        System.out.println("Subtotal: " + calculateSubtotal() + " CZK");
+        System.out.println("---------------------------------");
+        System.out.println(" Subtotal: " + calculateSubtotal().setScale(2, RoundingMode.HALF_UP) + " CZK");
+        System.out.println("---------------------------------");
     }
 
 }
