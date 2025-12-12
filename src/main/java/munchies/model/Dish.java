@@ -16,5 +16,5 @@ public interface Dish {
      * Returns a list of topping names applied to this dish.
      * Base dishes return an empty list.
      */
-    List<String> getToppings();
+    List<ToppingInfo> getToppings();
 }

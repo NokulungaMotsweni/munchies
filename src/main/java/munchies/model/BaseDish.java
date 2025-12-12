@@ -29,7 +29,7 @@ public class BaseDish implements Dish {
     }
 
     @Override
-    public List<String> getToppings() {
+    public List<ToppingInfo> getToppings() {
         return new ArrayList<>();
     }
 }

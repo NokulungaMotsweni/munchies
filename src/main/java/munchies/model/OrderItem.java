@@ -23,7 +23,7 @@ public class OrderItem {
         return dish.getPrice();
     }
 
-    public List<String> getToppings() {
+    public List<ToppingInfo> getToppings() {
         return dish.getToppings();
     }
 
@@ -31,8 +31,9 @@ public class OrderItem {
     public void printItem() {
         System.out.println(getName() + " (" + getLineTotal() + " CZK)");
 
-        for (String topping : getToppings()) {
-            System.out.println("    • " + topping);
+        for (ToppingInfo topping : getToppings()) {
+            System.out.println(
+                    "    • " + topping.name() + " (+" + topping.price() + " CZK)");
         }
     }
 }

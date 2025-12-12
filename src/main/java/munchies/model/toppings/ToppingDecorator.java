@@ -1,6 +1,7 @@
 package munchies.model.toppings;
 
 import munchies.model.Dish;
+import munchies.model.ToppingInfo;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -30,16 +31,21 @@ public abstract class ToppingDecorator implements Dish {
     // Returns the dish price in CZK
     @Override
     public BigDecimal getPrice() {
-        return dish.getPrice();
+        return dish.getPrice().add(getToppingPrice());
     }
 
+    // Returns all toppings applied so far
     @Override
-    public List<String> getToppings() {
-        List<String> toppings = new ArrayList<>(dish.getToppings());
-        toppings.add(getToppingName());
+    public List<ToppingInfo> getToppings() {
+        List<ToppingInfo> toppings = new ArrayList<>(dish.getToppings());
+        toppings.add(new ToppingInfo(getToppingName(), getToppingPrice()));
         return toppings;
     }
 
+
     // Each topping class only overrides this method
     protected abstract String getToppingName();
+
+    // Each concrete topping must provide its price
+    protected abstract BigDecimal getToppingPrice();
 }
