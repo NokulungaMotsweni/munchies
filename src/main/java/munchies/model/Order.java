@@ -15,6 +15,10 @@ public class Order {
         this.orderId = "ORD-" + NEXT_ID++;   // Assigns the order an identifier
     }
 
+    public String getOrderId() {
+        return orderId;
+    }
+
     public List<OrderItem> getItems() {
         // Returns a copy of the items to prevent outside classes from changing the internal list
         return new ArrayList<>(items);
