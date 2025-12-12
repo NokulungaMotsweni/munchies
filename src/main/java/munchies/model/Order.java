@@ -12,7 +12,7 @@ public class Order {
     private OrderStatus status = OrderStatus.NEW; // Current lifecyle state of the order
 
     public Order(String orderId) {
-        this.orderId = orderId;                 // Assigns the order an identifier
+        this.orderId = "ORD-" + NEXT_ID++;   // Assigns the order an identifier
     }
 
     public List<OrderItem> getItems() {
