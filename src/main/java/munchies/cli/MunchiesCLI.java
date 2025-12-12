@@ -26,7 +26,7 @@ public class MunchiesCLI {
     private final Scanner scanner = new Scanner(System.in);
 
     // One order per CLI session
-    private final Order currentOrder = new Order("CLI-ORDER");
+    private final Order currentOrder = new Order();
 
     public MunchiesCLI(RestaurantRepository restaurantRepository) {
         this.restaurantRepository = restaurantRepository;
@@ -157,7 +157,6 @@ public class MunchiesCLI {
 
         OrderItem orderItem = new OrderItem(dish);
         currentOrder.addItem(orderItem);
-
         System.out.println();
         System.out.println("Added to order: " + dish.getName());
     }
