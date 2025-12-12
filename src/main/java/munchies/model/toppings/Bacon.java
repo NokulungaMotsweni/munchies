@@ -13,12 +13,14 @@ public class Bacon  extends ToppingDecorator {
     }
 
 
-    public BigDecimal getPrice() {
-        return dish.getPrice().add(toppingPrice);
-    }
-
     @Override
     protected String getToppingName() {
         return "Bacon";
     }
+
+    @Override
+    public BigDecimal getToppingPrice() {
+        return new BigDecimal("25.00");
+    }
+
 }
