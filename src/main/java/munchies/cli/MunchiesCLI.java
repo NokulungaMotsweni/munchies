@@ -157,7 +157,6 @@ public class MunchiesCLI {
 
         OrderItem orderItem = new OrderItem(dish);
         currentOrder.addItem(orderItem);
-
         System.out.println();
         System.out.println("Added to order: " + dish.getName());
     }

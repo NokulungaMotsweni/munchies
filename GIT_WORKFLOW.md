@@ -1,10 +1,10 @@
 # ===== FIRST TIME SETUP =====
 
-# Clone the repo
+## Clone the repo
 git clone <your_fork_or_repo_url_here>
 cd munchies
 
-# Make sure you have main + dev
+## Make sure you have main + dev
 git checkout main
 git pull origin main
 
@@ -12,7 +12,7 @@ git checkout -b dev origin/dev || git checkout dev
 git pull origin dev
 
 # ===== STARTING A NEW TASK =====
-# Always sync with latest main + dev first
+## Always sync with latest main + dev first
 
 git checkout main
 git pull origin main
@@ -22,51 +22,51 @@ git pull origin dev
 
 # Create your feature branch from dev
 git checkout -b feature/<name>-<task>
-# e.g.
-# git checkout -b feature/dren-cli
-# git checkout -b feature/ahmed-payment
+## e.g.
+### git checkout -b feature/dren-cli
+### git checkout -b feature/ahmed-payment
 
 # ===== WHILE WORKING =====
 
-# Check what changed
+## Check what changed
 git status
 
-# Stage files
+## Stage files
 git add <file1> <file2>
-# or everything:
-# git add .
+### or everything:
+### git add .
 
-# Commit
+## Commit
 git commit -m "Short, clear message"
 
 # ===== PUSHING YOUR WORK =====
 
-# First push (sets upstream)
+## First push (sets upstream)
 git push -u origin feature/<name>-<task>
 
-# Next pushes (same branch)
+## Next pushes (same branch)
 git push
 
 # ===== OPEN PULL REQUEST =====
-# (Done on GitHub UI)
-# Source branch:  feature/<name>-<task>
-# Target branch:  dev
+## (Done on GitHub UI)
+### Source branch:  feature/<name>-<task>
+### Target branch:  dev
 
 # ===== AFTER YOUR PR IS MERGED INTO dev =====
 
-# Update your local dev and clean up
+## Update your local dev and clean up
 
 git checkout dev
 git pull origin dev
 
-# Optionally delete old feature branch locally
+## Optionally delete old feature branch locally
 git branch -d feature/<name>-<task>
 
-# And on remote (if merged)
+## And on remote (if merged)
 git push origin --delete feature/<name>-<task>
 
 # ===== MAINTAINER ONLY (MERGING dev → main) =====
-# Nokulunga only
+## Nokulunga only
 
 git checkout main
 git pull origin main
@@ -75,9 +75,9 @@ git checkout dev
 git pull origin dev
 
 # Create PR on GitHub:
-#   base: main
-#   compare: dev
-# Review, then merge.
+##   base: main
+##   compare: dev
+## Review, then merge.
 
 # Sync local main after merge
 git checkout main
