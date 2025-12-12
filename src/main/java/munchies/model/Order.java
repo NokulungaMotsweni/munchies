@@ -6,6 +6,7 @@ import java.util.List;
 
 public class Order {
 
+    private static int NEXT_ID = 1;
     private final String orderId;                   // Unique identifier for the order
     private final List<OrderItem> items = new ArrayList<>(); // Items that have been added to the order
     private OrderStatus status = OrderStatus.NEW; // Current lifecyle state of the order
