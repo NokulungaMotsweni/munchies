@@ -1,22 +1,23 @@
 package munchies.cli;
 
-import munchies.service.RestaurantRepository;
-import munchies.model.Restaurant;
+import munchies.model.BaseDish;
+import munchies.model.Dish;
 import munchies.model.MenuItem;
 import munchies.model.Order;
 import munchies.model.OrderItem;
-import munchies.model.Dish;
-import munchies.model.BaseDish;
+import munchies.model.Restaurant;
+import munchies.model.toppings.Bacon;
 import munchies.model.toppings.ExtraCheese;
 import munchies.model.toppings.ExtraSauce;
-import munchies.model.toppings.Bacon;
 import munchies.model.toppings.Mushrooms;
+import munchies.service.RestaurantRepository;
 
+import java.math.RoundingMode;
 import java.util.List;
 import java.util.Scanner;
 
 /**
- * Command-line interface (CLI) for the Munchies application.*
+ * Command-line interface (CLI) for the Munchies application.
  * All user interaction lives here; we only call the domain / service classes,
  * we never change them.
  */
@@ -33,7 +34,7 @@ public class MunchiesCLI {
     }
 
     /**
-     * Main loop.*
+     * Main loop.
      * 1 - Restaurants (browse / build order)
      * 2 - View current order
      * 0 - Exit
@@ -82,7 +83,6 @@ public class MunchiesCLI {
         System.out.println("0. Back to main menu");
 
         int choice = readInt("Select restaurant: ", 0, restaurants.size());
-
         if (choice == 0) return;
 
         Restaurant selected = restaurants.get(choice - 1);
@@ -102,26 +102,81 @@ public class MunchiesCLI {
 
         for (int i = 0; i < menuItems.size(); i++) {
             MenuItem item = menuItems.get(i);
-            String desc = (item.getDescription() == null ? "" : " — " + item.getDescription());
-            System.out.printf("%d. %s (%.2f)%s%n", i + 1, item.getName(), item.getPrice(), desc);
+            String desc = (item.getDescription() == null || item.getDescription().isBlank())
+                    ? ""
+                    : " — " + item.getDescription();
+
+            String price = item.getPrice().setScale(2, RoundingMode.HALF_UP).toPlainString();
+            System.out.printf("%d. %s (%s CZK)%s%n", i + 1, item.getName(), price, desc);
         }
         System.out.println("0. Back to restaurants");
 
         int choice = readInt("Select dish: ", 0, menuItems.size());
-
         if (choice == 0) return;
 
         addDishToOrder(menuItems.get(choice - 1));
     }
 
+    /**
+     * View order now supports removing an item using Order.removeItem(int index).
+     */
     private void viewOrder() {
         if (currentOrder.getItems().isEmpty()) {
             MunchiesErrors.orderEmpty();
             return;
         }
 
+        boolean viewing = true;
+
+        while (viewing) {
+            System.out.println();
+            currentOrder.printOrderSummary();
+
+            System.out.println("1. Remove item");
+            System.out.println("0. Back");
+
+            int choice = readInt("Select option: ", 0, 1);
+
+            switch (choice) {
+                case 1 -> removeItemFlow();
+                case 0 -> viewing = false;
+                default -> MunchiesErrors.invalidOption();
+            }
+
+            if (currentOrder.getItems().isEmpty()) {
+                System.out.println();
+                MunchiesErrors.orderEmpty();
+                viewing = false;
+            }
+        }
+    }
+
+    private void removeItemFlow() {
+        int count = currentOrder.getItems().size();
+        if (count == 0) {
+            MunchiesErrors.orderEmpty();
+            return;
+        }
+
         System.out.println();
-        currentOrder.printOrderSummary();
+        System.out.println("Enter the item number to remove (0 to cancel).");
+
+        int choice = readInt("Item number: ", 0, count);
+        if (choice == 0) return;
+
+        try {
+            currentOrder.removeItem(choice - 1);
+            System.out.println("✅ Item removed.");
+        } catch (IllegalArgumentException ex) {
+            // Friendly message, as requested
+            System.out.println("❌ Could not remove item. Please choose a valid item number.");
+        }
+
+        // Reprint updated order (unless it's empty now)
+        if (!currentOrder.getItems().isEmpty()) {
+            System.out.println();
+            currentOrder.printOrderSummary();
+        }
     }
 
     // ---------------------------------------------------------------------
@@ -135,12 +190,29 @@ public class MunchiesCLI {
 
         while (choosingToppings) {
             System.out.println();
-            System.out.println("Selected base: " + menuItem.getName() + " (" + menuItem.getPrice() + ")");
+            System.out.println("Selected base: " + dish.getName());
+
+            // ✅ Show current subtotal (base + toppings)
+            System.out.println(
+                    "Current subtotal: " +
+                            dish.getPrice().setScale(2, RoundingMode.HALF_UP) +
+                            " CZK"
+            );
+
+            // ✅ Show toppings added so far
+            if (!dish.getToppings().isEmpty()) {
+                System.out.println("Toppings:");
+                dish.getToppings().forEach(t ->
+                        System.out.println("  • " + t.name() + " (+" + t.price() + " CZK)")
+                );
+            }
+
+            System.out.println();
             System.out.println("Choose toppings:");
-            System.out.println("1. Extra cheese");
-            System.out.println("2. Extra sauce");
-            System.out.println("3. Bacon");
-            System.out.println("4. Mushrooms");
+            System.out.println("1. Extra cheese (+25.00 CZK)");
+            System.out.println("2. Extra sauce (+15.00 CZK)");
+            System.out.println("3. Bacon (+25.00 CZK)");
+            System.out.println("4. Mushrooms (+20.00 CZK)");
             System.out.println("0. Done");
 
             int choice = readInt("Select topping: ", 0, 4);
@@ -155,10 +227,15 @@ public class MunchiesCLI {
             }
         }
 
-        OrderItem orderItem = new OrderItem(dish);
-        currentOrder.addItem(orderItem);
+        currentOrder.addItem(new OrderItem(dish));
+
         System.out.println();
-        System.out.println("Added to order: " + dish.getName());
+        System.out.println("✅ Added to order:");
+        System.out.println(
+                dish.getName() + " — " +
+                        dish.getPrice().setScale(2, RoundingMode.HALF_UP) +
+                        " CZK"
+        );
     }
 
     // ---------------------------------------------------------------------
