@@ -1,28 +1,36 @@
 package munchies.service.payment;
 
 import java.math.BigDecimal;
+import java.util.Scanner;
 
 /**
- * Concrete implementations of the PaymentStrategy interface.
- * Implemented by Ahmed (F6 - Strategy Pattern).
+ * Strategy Interface: Defines a family of payment algorithms.
  */
+public interface PaymentStrategy {
+    void collectPaymentDetails(); // New: Handles specific input for the strategy
+    boolean pay(BigDecimal amount);
+}
 
 // 1. Credit Card Implementation
 class CreditCardPayment implements PaymentStrategy {
-    private final String cardNumber;
-    private final String cvv;
-    private final String expiryDate;
+    private String cardNumber;
+    private String cvv;
+    private String expiryDate;
 
-    public CreditCardPayment(String cardNumber, String cvv, String expiryDate) {
-        this.cardNumber = cardNumber;
-        this.cvv = cvv;
-        this.expiryDate = expiryDate;
+    @Override
+    public void collectPaymentDetails() {
+        Scanner sc = new Scanner(System.in);
+        System.out.print("Enter Card Number: ");
+        this.cardNumber = sc.nextLine();
+        System.out.print("Enter CVV: ");
+        this.cvv = sc.nextLine();
+        System.out.print("Enter Expiry (MM/YY): ");
+        this.expiryDate = sc.nextLine();
     }
 
     @Override
     public boolean pay(BigDecimal amount) {
         System.out.println("💳 Processing Credit Card payment of " + amount + " CZK...");
-        //
         System.out.println("   [Authorization Successful for card ending in " +
                 cardNumber.substring(cardNumber.length() - 4) + "]");
         return true;
@@ -31,10 +39,13 @@ class CreditCardPayment implements PaymentStrategy {
 
 // 2. PayPal Implementation
 class PayPalPayment implements PaymentStrategy {
-    private final String email;
+    private String email;
 
-    public PayPalPayment(String email) {
-        this.email = email;
+    @Override
+    public void collectPaymentDetails() {
+        Scanner sc = new Scanner(System.in);
+        System.out.print("Enter PayPal Email: ");
+        this.email = sc.nextLine();
     }
 
     @Override
@@ -48,9 +59,14 @@ class PayPalPayment implements PaymentStrategy {
 // 3. Cash on Delivery Implementation
 class CashOnDelivery implements PaymentStrategy {
     @Override
+    public void collectPaymentDetails() {
+        System.out.println("No details needed for Cash on Delivery.");
+    }
+
+    @Override
     public boolean pay(BigDecimal amount) {
         System.out.println("💵 Order confirmed. Total of " + amount +
                 " CZK to be paid in cash upon delivery.");
         return true;
     }
-}}
+}
