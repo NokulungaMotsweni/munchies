@@ -5,19 +5,22 @@ import munchies.service.discount.DiscountStrategy;
 import java.math.BigDecimal;
 
 /**
- * Ahmed: Implement order total and checkout logic.
- * This class performs: subtotal -> apply discount -> final total -> apply payment.
+ * Context Class: Communicates with strategies via the interface.
  */
 public class CheckoutService {
 
+    // The service doesn't care which strategy it uses
     public void processCheckout(Order order, DiscountStrategy discount, PaymentStrategy payment) {
-        // 1. Get the subtotal from the Order (Model)
+        // 1. Calculate Subtotal
         BigDecimal subtotal = order.calculateSubtotal();
 
-        // 2. Apply the chosen Discount Strategy
+        // 2. Apply Discount
         BigDecimal finalTotal = discount.apply(subtotal);
 
-        // 3. Process the payment with the final total
+        // 3. Collect specific details based on chosen strategy
+        payment.collectPaymentDetails();
+
+        // 4. Process the payment
         boolean success = payment.pay(finalTotal);
 
         if (success) {
