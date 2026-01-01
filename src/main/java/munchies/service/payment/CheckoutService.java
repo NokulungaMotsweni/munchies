@@ -3,30 +3,39 @@ package munchies.service.payment;
 import munchies.model.Order;
 import munchies.service.discount.DiscountStrategy;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 
 /**
- * Context Class: Communicates with strategies via the interface.
+ * Context Class: Ahmed's implementation of order total and checkout logic.
+ * This class performs: subtotal -> apply discount -> final total -> process payment.
  */
 public class CheckoutService {
 
-    // The service doesn't care which strategy it uses
     public void processCheckout(Order order, DiscountStrategy discount, PaymentStrategy payment) {
-        // 1. Calculate Subtotal
+        // 1. Get the subtotal from the Order (Model)
         BigDecimal subtotal = order.calculateSubtotal();
+        System.out.println("Subtotal: " + subtotal.setScale(2, RoundingMode.HALF_UP) + " CZK");
 
-        // 2. Apply Discount
+        // 2. Apply the chosen Discount Strategy
         BigDecimal finalTotal = discount.apply(subtotal);
 
-        // 3. Collect specific details based on chosen strategy
-        payment.collectPaymentDetails();
+        // Safety check: Ensure total is not negative and scale for currency
+        if (finalTotal.compareTo(BigDecimal.ZERO) < 0) {
+            finalTotal = BigDecimal.ZERO;
+        }
+        finalTotal = finalTotal.setScale(2, RoundingMode.HALF_UP);
 
-        // 4. Process the payment
+        System.out.println("Final Total (after discount): " + finalTotal + " CZK");
+
+        // 3. Process the payment with the final total
+        // NOTE: No 'collectPaymentDetails' here. The 'payment' object
+        // already has the details inside it from the CLI.
         boolean success = payment.pay(finalTotal);
 
         if (success) {
-            System.out.println("Payment processed successfully for: " + finalTotal + " CZK");
+            System.out.println("✅ Payment processed successfully for: " + finalTotal + " CZK");
         } else {
-            System.out.println("Payment failed.");
+            System.out.println("❌ Payment failed.");
         }
     }
-}
+}}
