@@ -1,12 +1,7 @@
 package munchies.cli;
 
+import munchies.model.*;
 import munchies.service.RestaurantRepository;
-import munchies.model.Restaurant;
-import munchies.model.MenuItem;
-import munchies.model.Order;
-import munchies.model.OrderItem;
-import munchies.model.Dish;
-import munchies.model.BaseDish;
 import munchies.model.toppings.ExtraCheese;
 import munchies.model.toppings.ExtraSauce;
 import munchies.model.toppings.Bacon;
@@ -155,7 +150,7 @@ public class MunchiesCLI {
             }
         }
 
-        OrderItem orderItem = new OrderItem(dish);
+        OrderItem orderItem = new DishOrderItem(dish);
         currentOrder.addItem(orderItem);
         System.out.println();
         System.out.println("Added to order: " + dish.getName());
