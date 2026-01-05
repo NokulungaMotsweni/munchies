@@ -1,7 +1,7 @@
 package munchies.cli;
 
 import munchies.model.*;
-import munchies.service.RestaurantRepository;
+import munchies.repository.RestaurantRepository;
 import munchies.model.toppings.ExtraCheese;
 import munchies.model.toppings.ExtraSauce;
 import munchies.model.toppings.Bacon;

@@ -1,4 +1,4 @@
-package munchies.service;
+package munchies.repository;
 
 import munchies.model.Restaurant;
 import java.util.List;
