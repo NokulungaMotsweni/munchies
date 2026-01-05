@@ -4,13 +4,14 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
-import munchies.model.OrderItem;
+
+import static munchies.cli.format.ReceiptFormat.*;
 public class Order {
 
     private static int NEXT_ID = 1;
+
     private final String orderId;                   // Unique identifier for the order
     private final List<OrderItem> items = new ArrayList<>(); // Items that have been added to the order
-    private static final int PREFIX_WIDTH = 4;
     private OrderStatus status = OrderStatus.NEW; // Current lifecycle state of the order
 
     public Order() {
@@ -69,17 +70,16 @@ public class Order {
         int index = 1;
 
         for (OrderItem item : items) {
-            System.out.printf("%-" + PREFIX_WIDTH + "s", index++ + ".");
+            System.out.printf("%-" + PREFIX_WIDTH + "s", (index++) + ".");
             item.printItem();
             System.out.println();
         }
 
         System.out.println("-------------------------------------------");
         System.out.printf(
-                "%-" + (DishOrderItem.NAME_WIDTH + PREFIX_WIDTH) + "s %" +
-                        DishOrderItem.PRICE_WIDTH + ".2f CZK%n",
-                "Subtotal",
-                calculateSubtotal()
+                "%-" + (PREFIX_WIDTH + NAME_WIDTH) + "s %" + PRICE_WIDTH + ".2f CZK%n",
+                " Subtotal:",
+                calculateSubtotal().setScale(2, RoundingMode.HALF_UP)
         );
         System.out.println("-------------------------------------------");
     }

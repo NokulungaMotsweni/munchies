@@ -1,11 +1,18 @@
 package munchies.cli;
 
-import munchies.model.*;
-import munchies.repository.RestaurantRepository;
+
+import munchies.model.Dish;
+import munchies.model.BaseDish;
+import munchies.model.DishOrderItem;
+import munchies.model.MenuItem;
+import munchies.model.Order;
+import munchies.model.OrderItem;
+import munchies.model.Restaurant;
+import munchies.model.toppings.Bacon;
 import munchies.model.toppings.ExtraCheese;
 import munchies.model.toppings.ExtraSauce;
-import munchies.model.toppings.Bacon;
 import munchies.model.toppings.Mushrooms;
+import munchies.repository.RestaurantRepository;
 
 import java.util.List;
 import java.util.Scanner;

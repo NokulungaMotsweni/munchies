@@ -4,15 +4,14 @@ import java.math.BigDecimal;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import static munchies.cli.format.ReceiptFormat.*;
+
 /**
  * Represents a single ordered dish, including toppings.
  * Works with the Decorator Pattern (F5).
  */
 public class DishOrderItem implements OrderItem {
 
-    public static final int NAME_WIDTH = 20;
-    public static final int PRICE_WIDTH = 8;
-    private static final int PREFIX_WIDTH = 4;
 
 
     private final Dish dish; // can be BaseDish or a decorated dish with topping
@@ -23,63 +22,80 @@ public class DishOrderItem implements OrderItem {
     }
 
     @Override
-    public String getName() {
-        return dish.getName();
-    }
-
-    @Override
     public BigDecimal getLineTotal() {
         return dish.getPrice();
     }
 
-    private void printLine(String label, BigDecimal price, int nameWidth) {
+    private void printLine(String label, BigDecimal price) {
         System.out.printf(
-                "%-" + nameWidth + "s %" + PRICE_WIDTH + ".2f CZK%n",
+                "%-" + NAME_WIDTH + "s %" + PRICE_WIDTH + ".2f CZK%n",
                 label,
                 price
         );
     }
 
+    private BigDecimal calculateBasePrice() {
+        BigDecimal toppingsTotal = BigDecimal.ZERO;
+        for (ToppingInfo topping : dish.getToppings()) {
+            toppingsTotal = toppingsTotal.add(topping.price());
+        }
+        return dish.getPrice().subtract(toppingsTotal);
+    }
+
+    private Map<String, ToppingGroup> groupToppings() {
+        Map<String, ToppingGroup> groups = new LinkedHashMap<>();
+
+        for (ToppingInfo topping : dish.getToppings()) {
+            groups
+                    .computeIfAbsent(
+                            topping.name(),
+                            name -> new ToppingGroup(name, topping.price())
+                    )
+                    .increment();
+        }
+
+        return groups;
+    }
+
+    private static class ToppingGroup {
+        private final String name;
+        private final BigDecimal unitPrice;
+        private int count = 0;
+
+        ToppingGroup(String name, BigDecimal unitPrice) {
+            this.name = name;
+            this.unitPrice = unitPrice;
+        }
+
+        void increment() {
+            count++;
+        }
+
+        BigDecimal totalPrice() {
+            return unitPrice.multiply(BigDecimal.valueOf(count));
+        }
+    }
 
 
     @Override
     public void printItem() {
 
-        // Calculate total price of toppings
-        BigDecimal toppingsTotal = BigDecimal.ZERO;
-        for (ToppingInfo topping : dish.getToppings()) {
-            toppingsTotal = toppingsTotal.add(topping.price());
-        }
+        BigDecimal basePrice = calculateBasePrice();
 
-        // Derive base dish price
-        BigDecimal basePrice = dish.getPrice().subtract(toppingsTotal);
+        // Base dish line
+        printLine(dish.getName(), basePrice);
 
-        // Print base dish (base price only)
-        printLine(dish.getName(), basePrice, NAME_WIDTH);
+        // Group toppings by name (e.g. Extra Sauce x2)
+        Map<String, ToppingGroup> groups = groupToppings();
 
-
-        // Print toppings aligned to same price column
-        Map<String, Integer> toppingCounts = new LinkedHashMap<>();
-        Map<String, BigDecimal> toppingPrices = new LinkedHashMap<>();
-
-        for (ToppingInfo topping : dish.getToppings()) {
-            toppingCounts.merge(topping.name(), 1, Integer::sum);
-            toppingPrices.putIfAbsent(topping.name(), topping.price());
-        }
-
-        for (String toppingName : toppingCounts.keySet()) {
-            int count = toppingCounts.get(toppingName);
-            BigDecimal unitPrice = toppingPrices.get(toppingName);
-
-            BigDecimal totalPrice = unitPrice.multiply(BigDecimal.valueOf(count));
-
-            String label = "  + " + toppingName;
-            if (count > 1) {
-                label += " x" + count;
+        for (ToppingGroup group : groups.values()) {
+            String label = "  + " + group.name;
+            if (group.count > 1) {
+                label += " x" + group.count;
             }
 
-            printLine(label, totalPrice, NAME_WIDTH + PREFIX_WIDTH);
-
+            System.out.print(" ".repeat(PREFIX_WIDTH));
+            printLine(label, group.totalPrice());
         }
 
     }
