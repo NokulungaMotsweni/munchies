@@ -2,7 +2,7 @@ package munchies.config;
 
 import munchies.model.MenuItem;
 import munchies.model.Restaurant;
-import munchies.service.RestaurantRepository;
+import munchies.repository.RestaurantRepository;
 
 import java.math.BigDecimal;
 import java.util.List;
