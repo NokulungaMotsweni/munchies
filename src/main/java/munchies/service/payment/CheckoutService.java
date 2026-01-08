@@ -11,12 +11,15 @@ import java.math.RoundingMode;
  */
 public class CheckoutService {
 
-    public void processCheckout(Order order, DiscountStrategy discount, PaymentStrategy payment) {
-        // 1. Get the subtotal from the Order (Model)
+    public void processCheckout(Order order, DiscountStrategy discount, PaymentStrategy payment, PaymentType paymentType) {
+
+        order.selectPaymentType(paymentType);
+
+        // Get the subtotal from the Order (Model)
         BigDecimal subtotal = order.calculateSubtotal();
         System.out.println("Subtotal: " + subtotal.setScale(2, RoundingMode.HALF_UP) + " CZK");
 
-        // 2. Apply the chosen Discount Strategy
+        // Apply discount (if applicable)
         BigDecimal finalTotal = discount.apply(subtotal);
 
         // Safety check: Ensure total is not negative and scale for currency
@@ -27,15 +30,21 @@ public class CheckoutService {
 
         System.out.println("Final Total (after discount): " + finalTotal + " CZK");
 
-        // 3. Process the payment with the final total
+        //  Process the payment strategy with the final total
         // NOTE: No 'collectPaymentDetails' here. The 'payment' object
         // already has the details inside it from the CLI.
         boolean success = payment.pay(finalTotal);
 
-        if (success) {
-            System.out.println("✅ Payment processed successfully for: " + finalTotal + " CZK");
-        } else {
+        if (!success) {
             System.out.println("❌ Payment failed.");
+            return;
         }
+
+        // 5. Mark paid only if NOT cash
+        if (paymentType != PaymentType.CASH_ON_DELIVERY) {
+            order.markPaid();
+        }
+
+        System.out.println("✅ Checkout completed.");
     }
 }
