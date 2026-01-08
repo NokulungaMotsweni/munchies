@@ -1,6 +1,7 @@
 package munchies.model;
 
 import munchies.service.observer.OrderStatusObserver;
+import munchies.service.payment.PaymentType;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -16,6 +17,9 @@ public class Order {
     private final String orderId;
     private final List<OrderItem> items = new ArrayList<>();
     private OrderStatus status = OrderStatus.NEW;
+    private PaymentType paymentType;
+    private boolean paid = false;
+
 
     // Observer Pattern: Subject holds observers
     private final List<OrderStatusObserver> observers = new ArrayList<>();
@@ -35,6 +39,49 @@ public class Order {
     public void addItem(OrderItem item) {
         items.add(item);
     }
+
+    public void selectPaymentType(PaymentType paymentType) {
+        if (paymentType == null) {
+            throw new IllegalArgumentException("Payment type cannot be null.");
+        }
+
+        if (this.status != OrderStatus.NEW) {
+            throw new IllegalStateException(
+                    "Payment type can only be selected while the order is NEW."
+            );
+        }
+
+        if (this.paid) {
+            throw new IllegalStateException(
+                    "Payment type cannot be changed after payment has been made."
+            );
+        }
+
+        this.paymentType = paymentType;
+    }
+
+    public PaymentType getPaymentType() {
+        return paymentType;
+    }
+
+    public void markPaid() {
+        if (paymentType == null) {
+            throw new IllegalStateException("Cannot mark order as paid: no payment type selected.");
+        }
+
+        if (paymentType == PaymentType.CASH_ON_DELIVERY) {
+            throw new IllegalStateException("Cash on delivery orders are not paid upfront.");
+        }
+
+        if (paid) {
+            return; // already paid
+        }
+
+        this.paid = true;
+    }
+
+
+
 
     // ----------------------------
     // Observer methods
@@ -72,8 +119,14 @@ public class Order {
         return status;
     }
 
+    public boolean isPaid() {
+        return paid;
+    }
+
     public void setStatus(OrderStatus newStatus) {
-        if (newStatus == null || newStatus == this.status) return;
+        if (newStatus == null || newStatus == this.status) {
+            return;
+        }
 
         if (!isValidTransition(this.status, newStatus)) {
             throw new IllegalStateException(
@@ -81,6 +134,23 @@ public class Order {
             );
         }
 
+        // Generic state transition validation
+        if (newStatus == OrderStatus.PROCESSING) {
+
+            if (paymentType == null) {
+                throw new IllegalStateException(
+                        "Payment type must be selected before processing the order."
+                );
+            }
+
+            if (paymentType != PaymentType.CASH_ON_DELIVERY && !paid) {
+                throw new IllegalStateException(
+                        "Order must be paid before processing."
+                );
+            }
+        }
+
+        // Apply state change
         this.status = newStatus;
         notifyObservers(newStatus);
     }
