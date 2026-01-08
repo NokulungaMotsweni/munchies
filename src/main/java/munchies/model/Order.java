@@ -1,6 +1,7 @@
 package munchies.model;
 
 import munchies.service.observer.OrderStatusObserver;
+import munchies.service.payment.PaymentType;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -16,6 +17,9 @@ public class Order {
     private final String orderId;
     private final List<OrderItem> items = new ArrayList<>();
     private OrderStatus status = OrderStatus.NEW;
+    private PaymentType paymentType;
+    private boolean paid = false;
+
 
     // Observer Pattern: Subject holds observers
     private final List<OrderStatusObserver> observers = new ArrayList<>();
@@ -35,6 +39,23 @@ public class Order {
     public void addItem(OrderItem item) {
         items.add(item);
     }
+
+    public void selectPaymentType(PaymentType paymentType) {
+        this.paymentType = paymentType;
+    }
+
+    public PaymentType getPaymentType() {
+        return paymentType;
+    }
+
+    public void markPaid() {
+        if (paid) {
+            throw new IllegalStateException("Order is already paid.");
+        }
+        this.paid = true;
+    }
+
+
 
     // ----------------------------
     // Observer methods
@@ -72,8 +93,23 @@ public class Order {
         return status;
     }
 
+    public boolean isPaid() {
+        return paid;
+    }
+
     public void setStatus(OrderStatus newStatus) {
         if (newStatus == null || newStatus == this.status) return;
+
+        // Can only process if paid OR cash-on-delivery
+        if (newStatus == OrderStatus.PROCESSING) {
+            if (paymentType == null) {
+                throw new IllegalStateException("Payment method must be selected first.");
+            }
+            if (paymentType != PaymentType.CASH_ON_DELIVERY && !paid) {
+                throw new IllegalStateException("Order must be paid before processing.");
+            }
+        }
+
 
         if (!isValidTransition(this.status, newStatus)) {
             throw new IllegalStateException(
