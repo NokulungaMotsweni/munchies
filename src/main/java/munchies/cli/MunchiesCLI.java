@@ -13,7 +13,12 @@ import munchies.model.toppings.ExtraCheese;
 import munchies.model.toppings.ExtraSauce;
 import munchies.model.toppings.Mushrooms;
 import munchies.repository.RestaurantRepository;
+import munchies.service.discount.DiscountStrategy;
+import munchies.service.discount.NoDiscount;
 import munchies.service.observer.CliOrderStatusObserver;
+import munchies.service.payment.*;
+import munchies.service.payment.PaymentStrategy;
+import munchies.service.payment.PaymentType;
 
 import java.util.List;
 import java.util.Scanner;
@@ -25,14 +30,17 @@ import java.util.Scanner;
 public class MunchiesCLI {
 
     private final RestaurantRepository restaurantRepository;
+    private final CheckoutService checkoutService = new CheckoutService();
     private final Scanner scanner = new Scanner(System.in);
 
     // One order per CLI session
     private final Order currentOrder = new Order();
 
+    // ─────────────────────────────
+    // Constructor
+    // ─────────────────────────────
     public MunchiesCLI(RestaurantRepository restaurantRepository) {
         this.restaurantRepository = restaurantRepository;
-
         // Attach notifications (Observer Pattern)
         currentOrder.addObserver(new CliOrderStatusObserver());
     }
@@ -52,15 +60,43 @@ public class MunchiesCLI {
             System.out.println("=== Munchies CLI ===");
             System.out.println("1. Restaurants (browse / add dish)");
             System.out.println("2. View current order");
-            System.out.println("3. Update order status (test)");
+
+            boolean canCheckout =
+                    !currentOrder.getItems().isEmpty()
+                            && currentOrder.getPaymentType() == null;
+
+            boolean canProcess =
+                    currentOrder.getPaymentType() != null;
+
+            if (canCheckout) {
+                System.out.println("3. Checkout");
+            }
+
+            if (canProcess) {
+                System.out.println("4. Track / Process order");
+            }
+
             System.out.println("0. Exit");
 
-            int choice = readInt("Select option: ", 0, 3);
+            int choice = readInt("Select option: ", 0, 4);
 
             switch (choice) {
                 case 1 -> browseRestaurants();
                 case 2 -> viewOrder();
-                case 3 -> statusMenu();
+                case 3 -> {
+                    if (canCheckout) {
+                        checkout();
+                    } else {
+                        MunchiesErrors.invalidOption();
+                    }
+                }
+                case 4 -> {
+                    if (canProcess) {
+                        simulateOrderProgress(); // or statusMenu()
+                    } else {
+                        MunchiesErrors.invalidOption();
+                    }
+                }
                 case 0 -> {
                     System.out.println("Goodbye!");
                     running = false;
@@ -68,8 +104,54 @@ public class MunchiesCLI {
                 default -> MunchiesErrors.invalidOption();
             }
         }
-    }
 
+
+    }
+    // ─────────────────────────────
+    // Checkout logic
+    // ─────────────────────────────
+    private void checkout() {
+        if (currentOrder.getItems().isEmpty()) {
+            System.out.println("Order is empty.");
+            return;
+        }
+
+        System.out.println();
+        System.out.println("=== Checkout ===");
+        System.out.println("Select payment method:");
+        System.out.println("1. Credit Card");
+        System.out.println("2. PayPal");
+        System.out.println("3. Cash on Delivery");
+
+        int choice = readInt("Select: ", 1, 3);
+
+        PaymentType paymentType;
+        PaymentStrategy paymentStrategy;
+
+        switch (choice) {
+            case 1 -> {
+                paymentType = PaymentType.CREDIT_CARD;
+                paymentStrategy = new CreditCardPayment();
+            }
+            case 2 -> {
+                paymentType = PaymentType.PAYPAL;
+                paymentStrategy = new PayPalPayment();
+            }
+            case 3 -> {
+                paymentType = PaymentType.CASH_ON_DELIVERY;
+                paymentStrategy = new CashOnDelivery();
+            }
+            default -> throw new IllegalStateException();
+        }
+
+        DiscountStrategy discount = new NoDiscount();
+
+        checkoutService.processCheckout(
+                currentOrder,
+                discount,
+                paymentType
+        );
+    }
     // ---------------------------------------------------------------------
     //  MAIN FLOWS
     // ---------------------------------------------------------------------
@@ -136,35 +218,37 @@ public class MunchiesCLI {
     //  ORDER STATUS (TEST MENU)
     // ---------------------------------------------------------------------
 
-    private void statusMenu() {
-        if (currentOrder.getItems().isEmpty()) {
-            System.out.println("Add items to the order first.");
-            return;
-        }
-
-        System.out.println();
-        System.out.println("Current status: " + currentOrder.getStatus());
-        System.out.println("1. PROCESSING");
-        System.out.println("2. OUT_FOR_DELIVERY");
-        System.out.println("3. COMPLETED");
-        System.out.println("4. CANCELLED");
-        System.out.println("0. Back");
-
-        int choice = readInt("Select: ", 0, 4);
-
+    private void simulateOrderProgress() {
         try {
-            switch (choice) {
-                case 1 -> currentOrder.setStatus(OrderStatus.PROCESSING);
-                case 2 -> currentOrder.setStatus(OrderStatus.OUT_FOR_DELIVERY);
-                case 3 -> currentOrder.setStatus(OrderStatus.COMPLETED);
-                case 4 -> currentOrder.setStatus(OrderStatus.CANCELLED);
-                case 0 -> { return; }
-                default -> MunchiesErrors.invalidOption();
+            OrderStatus current = currentOrder.getStatus();
+
+            switch (current) {
+                case NEW -> {
+                    System.out.println("[SYSTEM] Order accepted, starting preparation...");
+                    currentOrder.setStatus(OrderStatus.PROCESSING);
+                }
+                case PROCESSING -> {
+                    System.out.println("[SYSTEM] Order handed to courier...");
+                    currentOrder.setStatus(OrderStatus.OUT_FOR_DELIVERY);
+                }
+                case OUT_FOR_DELIVERY -> {
+                    System.out.println("[SYSTEM] Order delivered.");
+                    currentOrder.setStatus(OrderStatus.COMPLETED);
+                }
+                case COMPLETED -> {
+                    System.out.println("Order already completed.");
+                }
+                case CANCELLED -> {
+                    System.out.println("Order was cancelled.");
+                }
             }
+
         } catch (IllegalStateException ex) {
-            System.out.println("Cannot do that: " + ex.getMessage());
+            System.out.println("Cannot advance order: " + ex.getMessage());
         }
     }
+
+
 
     // ---------------------------------------------------------------------
     //  DISH + TOPPINGS
