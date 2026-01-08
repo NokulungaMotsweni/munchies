@@ -124,22 +124,30 @@ public class Order {
     }
 
     public void setStatus(OrderStatus newStatus) {
-        if (newStatus == null || newStatus == this.status) return;
+        if (newStatus == null || newStatus == this.status) {
+            return;
+        }
 
-        // Generic state transition validation
         if (!isValidTransition(this.status, newStatus)) {
             throw new IllegalStateException(
                     "Invalid status transition: " + this.status + " -> " + newStatus
             );
         }
 
-        // Payment-specific business rules
-        if (newStatus == OrderStatus.PROCESSING &&
-                paymentType != PaymentType.CASH_ON_DELIVERY &&
-                !paid) {
-            throw new IllegalStateException(
-                    "Order must be paid before processing."
-            );
+        // Generic state transition validation
+        if (newStatus == OrderStatus.PROCESSING) {
+
+            if (paymentType == null) {
+                throw new IllegalStateException(
+                        "Payment type must be selected before processing the order."
+                );
+            }
+
+            if (paymentType != PaymentType.CASH_ON_DELIVERY && !paid) {
+                throw new IllegalStateException(
+                        "Order must be paid before processing."
+                );
+            }
         }
 
         // Apply state change
