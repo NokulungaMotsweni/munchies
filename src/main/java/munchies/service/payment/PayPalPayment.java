@@ -6,7 +6,7 @@ public class PayPalPayment implements PaymentStrategy {
 
     @Override
     public boolean pay(BigDecimal amount) {
-        System.out.println("   Processing payment of " + amount + " CZK...");
+        System.out.println("🅿️ Processing payment of " + amount + " CZK...");
         return true;
     }
 }

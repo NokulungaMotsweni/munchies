@@ -41,6 +41,22 @@ public class Order {
     }
 
     public void selectPaymentType(PaymentType paymentType) {
+        if (paymentType == null) {
+            throw new IllegalArgumentException("Payment type cannot be null.");
+        }
+
+        if (this.status != OrderStatus.NEW) {
+            throw new IllegalStateException(
+                    "Payment type can only be selected while the order is NEW."
+            );
+        }
+
+        if (this.paid) {
+            throw new IllegalStateException(
+                    "Payment type cannot be changed after payment has been made."
+            );
+        }
+
         this.paymentType = paymentType;
     }
 
@@ -49,11 +65,21 @@ public class Order {
     }
 
     public void markPaid() {
-        if (paid) {
-            throw new IllegalStateException("Order is already paid.");
+        if (paymentType == null) {
+            throw new IllegalStateException("Cannot mark order as paid: no payment type selected.");
         }
+
+        if (paymentType == PaymentType.CASH_ON_DELIVERY) {
+            throw new IllegalStateException("Cash on delivery orders are not paid upfront.");
+        }
+
+        if (paid) {
+            return; // already paid
+        }
+
         this.paid = true;
     }
+
 
 
 
@@ -100,23 +126,23 @@ public class Order {
     public void setStatus(OrderStatus newStatus) {
         if (newStatus == null || newStatus == this.status) return;
 
-        // Can only process if paid OR cash-on-delivery
-        if (newStatus == OrderStatus.PROCESSING) {
-            if (paymentType == null) {
-                throw new IllegalStateException("Payment method must be selected first.");
-            }
-            if (paymentType != PaymentType.CASH_ON_DELIVERY && !paid) {
-                throw new IllegalStateException("Order must be paid before processing.");
-            }
-        }
-
-
+        // Generic state transition validation
         if (!isValidTransition(this.status, newStatus)) {
             throw new IllegalStateException(
                     "Invalid status transition: " + this.status + " -> " + newStatus
             );
         }
 
+        // Payment-specific business rules
+        if (newStatus == OrderStatus.PROCESSING &&
+                paymentType != PaymentType.CASH_ON_DELIVERY &&
+                !paid) {
+            throw new IllegalStateException(
+                    "Order must be paid before processing."
+            );
+        }
+
+        // Apply state change
         this.status = newStatus;
         notifyObservers(newStatus);
     }

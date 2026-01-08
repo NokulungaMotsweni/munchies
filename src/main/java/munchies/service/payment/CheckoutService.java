@@ -11,8 +11,9 @@ import java.math.RoundingMode;
  */
 public class CheckoutService {
 
-    public void processCheckout(Order order, DiscountStrategy discount, PaymentStrategy payment, PaymentType paymentType) {
+    public void processCheckout(Order order, DiscountStrategy discount, PaymentType paymentType) {
 
+        // Lock in payment type (domain validation happens inside Order)
         order.selectPaymentType(paymentType);
 
         // Get the subtotal from the Order (Model)
@@ -33,7 +34,8 @@ public class CheckoutService {
         //  Process the payment strategy with the final total
         // NOTE: No 'collectPaymentDetails' here. The 'payment' object
         // already has the details inside it from the CLI.
-        boolean success = payment.pay(finalTotal);
+        PaymentStrategy paymentStrategy = createPaymentStrategy(paymentType);
+        boolean success = paymentStrategy.pay(finalTotal);
 
         if (!success) {
             System.out.println("❌ Payment failed.");
@@ -47,4 +49,13 @@ public class CheckoutService {
 
         System.out.println("✅ Checkout completed.");
     }
+
+    private PaymentStrategy createPaymentStrategy(PaymentType paymentType) {
+        return switch (paymentType) {
+            case CREDIT_CARD -> new CreditCardPayment();
+            case PAYPAL -> new PayPalPayment();
+            case CASH_ON_DELIVERY -> new CashOnDelivery();
+        };
+    }
+
 }
