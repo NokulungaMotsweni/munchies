@@ -41,7 +41,9 @@ public class Order {
     // ----------------------------
 
     public void addObserver(OrderStatusObserver observer) {
-        if (observer != null) observers.add(observer);
+        if (observer != null && !observers.contains(observer)) {
+            observers.add(observer);
+        }
     }
 
     public void removeObserver(OrderStatusObserver observer) {
@@ -49,8 +51,16 @@ public class Order {
     }
 
     private void notifyObservers(OrderStatus newStatus) {
-        for (OrderStatusObserver o : observers) {
-            o.onStatusChanged(this, newStatus);
+        // Iterate over a snapshot to avoid ConcurrentModificationException
+        List<OrderStatusObserver> snapshot = new ArrayList<>(observers);
+
+        for (OrderStatusObserver o : snapshot) {
+            try {
+                o.onStatusChanged(this, newStatus);
+            } catch (RuntimeException e) {
+                // Ensure one faulty observer does not prevent others from being notified
+                // Logging could be added here if needed
+            }
         }
     }
 
