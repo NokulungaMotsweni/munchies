@@ -1,5 +1,4 @@
 package munchies.cli;
-
 import munchies.model.Dish;
 import munchies.model.BaseDish;
 import munchies.model.DishOrderItem;
@@ -10,14 +9,14 @@ import munchies.model.OrderStatus;
 import munchies.model.Restaurant;
 import munchies.model.toppings.Bacon;
 import munchies.model.toppings.ExtraCheese;
+import munchies.cli.MunchiesErrors;
 import munchies.model.toppings.ExtraSauce;
 import munchies.model.toppings.Mushrooms;
 import munchies.repository.RestaurantRepository;
 import munchies.service.discount.DiscountStrategy;
 import munchies.service.discount.NoDiscount;
 import munchies.service.observer.CliOrderStatusObserver;
-import munchies.service.payment.*;
-import munchies.service.payment.PaymentStrategy;
+import munchies.service.payment.CheckoutService;
 import munchies.service.payment.PaymentType;
 
 import java.util.List;
@@ -126,21 +125,11 @@ public class MunchiesCLI {
         int choice = readInt("Select: ", 1, 3);
 
         PaymentType paymentType;
-        PaymentStrategy paymentStrategy;
 
         switch (choice) {
-            case 1 -> {
-                paymentType = PaymentType.CREDIT_CARD;
-                paymentStrategy = new CreditCardPayment();
-            }
-            case 2 -> {
-                paymentType = PaymentType.PAYPAL;
-                paymentStrategy = new PayPalPayment();
-            }
-            case 3 -> {
-                paymentType = PaymentType.CASH_ON_DELIVERY;
-                paymentStrategy = new CashOnDelivery();
-            }
+            case 1 -> paymentType = PaymentType.CREDIT_CARD;
+            case 2 -> paymentType = PaymentType.PAYPAL;
+            case 3 -> paymentType = PaymentType.CASH_ON_DELIVERY;
             default -> throw new IllegalStateException();
         }
 
