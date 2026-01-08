@@ -1,21 +1,27 @@
 package munchies.model;
 
+import munchies.service.observer.OrderStatusObserver;
+
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 
 import static munchies.cli.format.ReceiptFormat.*;
+
 public class Order {
 
     private static int NEXT_ID = 1;
 
-    private final String orderId;                   // Unique identifier for the order
-    private final List<OrderItem> items = new ArrayList<>(); // Items that have been added to the order
-    private OrderStatus status = OrderStatus.NEW; // Current lifecycle state of the order
+    private final String orderId;
+    private final List<OrderItem> items = new ArrayList<>();
+    private OrderStatus status = OrderStatus.NEW;
+
+    // Observer Pattern: Subject holds observers
+    private final List<OrderStatusObserver> observers = new ArrayList<>();
 
     public Order() {
-        this.orderId = "ORD-" + NEXT_ID++;   // Assigns the order an identifier
+        this.orderId = "ORD-" + NEXT_ID++;
     }
 
     public String getOrderId() {
@@ -23,24 +29,74 @@ public class Order {
     }
 
     public List<OrderItem> getItems() {
-        // Returns a copy of the items to prevent outside classes from changing the internal list
         return new ArrayList<>(items);
     }
 
     public void addItem(OrderItem item) {
-        // Adds an DishOrderItem to the order
         items.add(item);
     }
 
+    // ----------------------------
+    // Observer methods
+    // ----------------------------
+
+    public void addObserver(OrderStatusObserver observer) {
+        if (observer != null && !observers.contains(observer)) {
+            observers.add(observer);
+        }
+    }
+
+    public void removeObserver(OrderStatusObserver observer) {
+        observers.remove(observer);
+    }
+
+    private void notifyObservers(OrderStatus newStatus) {
+        // Iterate over a snapshot to avoid ConcurrentModificationException
+        List<OrderStatusObserver> snapshot = new ArrayList<>(observers);
+
+        for (OrderStatusObserver o : snapshot) {
+            try {
+                o.onStatusChanged(this, newStatus);
+            } catch (RuntimeException e) {
+                // Ensure one faulty observer does not prevent others from being notified
+                // Logging could be added here if needed
+            }
+        }
+    }
+
+    // ----------------------------
+    // Status methods
+    // ----------------------------
+
     public OrderStatus getStatus() {
-        // Returns the current status if the order
         return status;
     }
 
-    public void setStatus(OrderStatus status) {
-        // Updates the order status (used by the Observer Pattern later (Dren))
-        this.status = status;
+    public void setStatus(OrderStatus newStatus) {
+        if (newStatus == null || newStatus == this.status) return;
+
+        if (!isValidTransition(this.status, newStatus)) {
+            throw new IllegalStateException(
+                    "Invalid status transition: " + this.status + " -> " + newStatus
+            );
+        }
+
+        this.status = newStatus;
+        notifyObservers(newStatus);
     }
+
+    private boolean isValidTransition(OrderStatus from, OrderStatus to) {
+        return switch (from) {
+            case NEW -> (to == OrderStatus.PROCESSING || to == OrderStatus.CANCELLED);
+            case PROCESSING -> (to == OrderStatus.OUT_FOR_DELIVERY || to == OrderStatus.CANCELLED);
+            case OUT_FOR_DELIVERY -> (to == OrderStatus.COMPLETED || to == OrderStatus.CANCELLED);
+            case COMPLETED, CANCELLED -> false;
+        };
+    }
+
+    // ----------------------------
+    // Order item methods
+    // ----------------------------
 
     public void removeItem(int index) {
         if (index < 0 || index >= items.size()) {
@@ -49,10 +105,6 @@ public class Order {
         items.remove(index);
     }
 
-    /*
-    * Basic subtotal calculation without discounts.
-    * DiscountStrategy strategies will be applied in the service layer (Ahmed)
-     */
     public BigDecimal calculateSubtotal() {
         BigDecimal subtotal = BigDecimal.ZERO;
         for (OrderItem item : items) {
@@ -83,5 +135,4 @@ public class Order {
         );
         System.out.println("-------------------------------------------");
     }
-
 }

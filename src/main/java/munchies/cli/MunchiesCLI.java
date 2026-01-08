@@ -1,26 +1,26 @@
 package munchies.cli;
 
-
 import munchies.model.Dish;
 import munchies.model.BaseDish;
 import munchies.model.DishOrderItem;
 import munchies.model.MenuItem;
 import munchies.model.Order;
 import munchies.model.OrderItem;
+import munchies.model.OrderStatus;
 import munchies.model.Restaurant;
 import munchies.model.toppings.Bacon;
 import munchies.model.toppings.ExtraCheese;
 import munchies.model.toppings.ExtraSauce;
 import munchies.model.toppings.Mushrooms;
 import munchies.repository.RestaurantRepository;
+import munchies.service.observer.CliOrderStatusObserver;
 
 import java.util.List;
 import java.util.Scanner;
 
 /**
- * Command-line interface (CLI) for the Munchies application.*
- * All user interaction lives here; we only call the domain / service classes,
- * we never change them.
+ * Command-line interface (CLI) for the Munchies application.
+ * All user interaction lives here; we only call the domain / service classes.
  */
 public class MunchiesCLI {
 
@@ -32,12 +32,16 @@ public class MunchiesCLI {
 
     public MunchiesCLI(RestaurantRepository restaurantRepository) {
         this.restaurantRepository = restaurantRepository;
+
+        // Attach notifications (Observer Pattern)
+        currentOrder.addObserver(new CliOrderStatusObserver());
     }
 
     /**
-     * Main loop.*
+     * Main loop.
      * 1 - Restaurants (browse / build order)
      * 2 - View current order
+     * 3 - Update order status (test)
      * 0 - Exit
      */
     public void run() {
@@ -48,13 +52,15 @@ public class MunchiesCLI {
             System.out.println("=== Munchies CLI ===");
             System.out.println("1. Restaurants (browse / add dish)");
             System.out.println("2. View current order");
+            System.out.println("3. Update order status (test)");
             System.out.println("0. Exit");
 
-            int choice = readInt("Select option: ", 0, 2);
+            int choice = readInt("Select option: ", 0, 3);
 
             switch (choice) {
                 case 1 -> browseRestaurants();
                 case 2 -> viewOrder();
+                case 3 -> statusMenu();
                 case 0 -> {
                     System.out.println("Goodbye!");
                     running = false;
@@ -127,6 +133,40 @@ public class MunchiesCLI {
     }
 
     // ---------------------------------------------------------------------
+    //  ORDER STATUS (TEST MENU)
+    // ---------------------------------------------------------------------
+
+    private void statusMenu() {
+        if (currentOrder.getItems().isEmpty()) {
+            System.out.println("Add items to the order first.");
+            return;
+        }
+
+        System.out.println();
+        System.out.println("Current status: " + currentOrder.getStatus());
+        System.out.println("1. PROCESSING");
+        System.out.println("2. OUT_FOR_DELIVERY");
+        System.out.println("3. COMPLETED");
+        System.out.println("4. CANCELLED");
+        System.out.println("0. Back");
+
+        int choice = readInt("Select: ", 0, 4);
+
+        try {
+            switch (choice) {
+                case 1 -> currentOrder.setStatus(OrderStatus.PROCESSING);
+                case 2 -> currentOrder.setStatus(OrderStatus.OUT_FOR_DELIVERY);
+                case 3 -> currentOrder.setStatus(OrderStatus.COMPLETED);
+                case 4 -> currentOrder.setStatus(OrderStatus.CANCELLED);
+                case 0 -> { return; }
+                default -> MunchiesErrors.invalidOption();
+            }
+        } catch (IllegalStateException ex) {
+            System.out.println("Cannot do that: " + ex.getMessage());
+        }
+    }
+
+    // ---------------------------------------------------------------------
     //  DISH + TOPPINGS
     // ---------------------------------------------------------------------
 
@@ -159,6 +199,7 @@ public class MunchiesCLI {
 
         OrderItem orderItem = new DishOrderItem(dish);
         currentOrder.addItem(orderItem);
+
         System.out.println();
         System.out.println("Added to order: " + dish.getName());
     }
