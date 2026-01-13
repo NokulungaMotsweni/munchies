@@ -14,7 +14,9 @@ import munchies.model.toppings.ExtraSauce;
 import munchies.model.toppings.Mushrooms;
 import munchies.repository.RestaurantRepository;
 import munchies.service.discount.DiscountStrategy;
+import munchies.service.discount.FixedDiscount;
 import munchies.service.discount.NoDiscount;
+import munchies.service.discount.PercentageDiscount;
 import munchies.service.observer.CliOrderStatusObserver;
 import munchies.service.payment.CheckoutService;
 import munchies.service.payment.PaymentType;
@@ -133,7 +135,7 @@ public class MunchiesCLI {
             default -> throw new IllegalStateException();
         }
 
-        DiscountStrategy discount = new NoDiscount();
+        DiscountStrategy discount = chooseDiscount();
 
         checkoutService.processCheckout(
                 currentOrder,
@@ -202,6 +204,23 @@ public class MunchiesCLI {
         System.out.println();
         currentOrder.printOrderSummary();
     }
+
+    private DiscountStrategy chooseDiscount() {
+        System.out.println();
+        System.out.println("Choose discount:");
+        System.out.println("1. No discount");
+        System.out.println("2. 10% off");
+        System.out.println("3. 50 CZK off");
+
+        int choice = readInt("Select discount: ", 1, 3);
+
+        return switch (choice) {
+            case 2 -> new PercentageDiscount(10); // 10%
+            case 3 -> new FixedDiscount(50);      // 50 CZK
+            default -> new NoDiscount();
+        };
+    }
+
 
     // ---------------------------------------------------------------------
     //  ORDER STATUS (TEST MENU)
