@@ -2,32 +2,59 @@ package munchies.model;
 
 import java.math.BigDecimal;
 
+/**
+ * Represents a menu item offered by a restaurant.
+ */
 public class MenuItem {
-    private final String id; // MenuItem unique identifier
-    private final String name; // e.g "Cheese Burger"
-    private final String description; // May or may not be added depending on the restaurant
-    private final BigDecimal price; // The cost of the MenuItem
-    private final String type; // The type of dietary category of the MenuItem
-    private final boolean available; // Shows the availability of the itm
+
+    // MenuItem unique identifier.
+    private final String id;
+
+    // Display name shown to the user.
+    private final String name;
+
+    // May or may not be added depending on the restaurant.
+    private final String description;
+
+    // The cost of the MenuItem.
+    private final BigDecimal price;
+
+    // The type of dietary category of the MenuItem.
+    private final String type;
+
+    // Shows the availability of the item
+    private final boolean available;
 
 
     public MenuItem(String id, String name, String description, BigDecimal price, String type,
                     boolean available) {
-        this.id = id; // Assigns the menu item ID
-        this.name = name; // Assigns the display name of the MenuItem
-        this.description = description; // Assign description of the MenuItem (if applicable)
-        this.price = price; // Assigns the price of the MenuItem
-        this.type = type; // Assigns Type to the MenuItem
-        this.available = available; // Assigns the availability of said MenuItem
+
+        // Assigns the menu item ID.
+        this.id = id;
+
+        // Assigns the display name of the MenuItem.
+        this.name = name;
+
+        // Assign description of the MenuItem (if applicable).
+        this.description = description;
+
+        // Assigns the price of the MenuItem
+        this.price = price;
+
+        // Assigns Type to the MenuItem.
+        this.type = type;
+
+        // Assigns the availability of said MenuItem.
+        this.available = available;
     }
 
     public String getId() {
-        // Returns the identifier for this MenuItem
+        // Returns the identifier for this MenuItem.
         return id;
     }
 
     public String getName() {
-        // Returns the display name of the MenuItem
+        // Returns the display name of the MenuItem.
         return name;
     }
 
@@ -41,13 +68,14 @@ public class MenuItem {
         return price;
     }
 
+    // Returns the dietary category of the menu item.
     public boolean isAvailable() {
         return available;
     }
 
+    // Returns the dietary category of the menu item.
     public String getType() {
         return type;
     }
 
-    // Setters will be added later if the MenuItem should support updates or configuration changes.
 }
