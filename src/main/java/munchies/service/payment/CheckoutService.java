@@ -6,7 +6,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 
 /**
- * Context Class: Ahmed's implementation of order total and checkout logic.
+ * Context Class:  implementation of order total and checkout logic.
  * This class performs: subtotal -> apply discount -> final total -> process payment.
  */
 public class CheckoutService {
