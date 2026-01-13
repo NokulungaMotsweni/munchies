@@ -10,24 +10,35 @@ import java.util.ArrayList;
  */
 public class BaseDish implements Dish {
 
+    // Display name of the dish
     private final String name;
+
+    // Base price of the dish before any toppings are applied
     private final BigDecimal price;
 
+    // Creates a base dish with a name and base price.
     public BaseDish(String name, BigDecimal price) {
         this.name = name;
         this.price = price;
     }
 
+    // Returns the name of the dish.
     @Override
     public String getName() {
         return name;
     }
 
+    // Returns the base price of the dish.
     @Override
     public BigDecimal getPrice() {
         return price;
     }
 
+    /**
+     * Returns the list of toppings applied to this dish.
+     * This is the Base dish, no toppings are present.
+     *
+     */
     @Override
     public List<ToppingInfo> getToppings() {
         return new ArrayList<>();

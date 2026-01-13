@@ -10,36 +10,61 @@ import java.util.List;
 
 import static munchies.cli.format.ReceiptFormat.*;
 
+/**
+ * Represents a customer order within the system.
+ * The Order acts as the central aggregate root, managing ordered items,
+ * payment state, and lifecycle transitions.
+ * Subject in the Observer Pattern (F7), notifying interested observers
+ * when the order status changes.
+ */
 public class Order {
 
+    // Used to generate simple unique order identifiers.
     private static int NEXT_ID = 1;
 
+    // // Unique identifier for the order.
     private final String orderId;
+
+    // Collection of items added to the order.
     private final List<OrderItem> items = new ArrayList<>();
+
+    // Current lifecycle status of the order.
     private OrderStatus status = OrderStatus.NEW;
+
+    // Selected payment method for the order.
     private PaymentType paymentType;
+
+    // Indicates whether payment has been completed.
     private boolean paid = false;
 
 
     // Observer Pattern: Subject holds observers
     private final List<OrderStatusObserver> observers = new ArrayList<>();
 
+    // Creates a new Order with a generated identifier.
     public Order() {
         this.orderId = "ORD-" + NEXT_ID++;
     }
 
+    // Returns the unique order identifier.
     public String getOrderId() {
         return orderId;
     }
 
+    // Returns a defensive copy of the order items.
     public List<OrderItem> getItems() {
         return new ArrayList<>(items);
     }
 
+    // Adds an item to the order.
     public void addItem(OrderItem item) {
         items.add(item);
     }
 
+    /**
+     * Selects the payment method for this order.
+     * Payment type can only be chosen while the order is NEW.
+     */
     public void selectPaymentType(PaymentType paymentType) {
         if (paymentType == null) {
             throw new IllegalArgumentException("Payment type cannot be null.");
@@ -60,10 +85,15 @@ public class Order {
         this.paymentType = paymentType;
     }
 
+    // Returns the selected payment type.
     public PaymentType getPaymentType() {
         return paymentType;
     }
 
+    /**
+     * Marks the order as paid.
+     * Cash on delivery orders are excluded from upfront payment.
+     */
     public void markPaid() {
         if (paymentType == null) {
             throw new IllegalStateException("Cannot mark order as paid: no payment type selected.");
@@ -87,16 +117,19 @@ public class Order {
     // Observer methods
     // ----------------------------
 
+    // Registers an observer to receive order status updates.
     public void addObserver(OrderStatusObserver observer) {
         if (observer != null && !observers.contains(observer)) {
             observers.add(observer);
         }
     }
 
+    // Removes a previously registered observer.
     public void removeObserver(OrderStatusObserver observer) {
         observers.remove(observer);
     }
 
+    // Notifies all registered observers of a status change.
     private void notifyObservers(OrderStatus newStatus) {
         // Iterate over a snapshot to avoid ConcurrentModificationException
         List<OrderStatusObserver> snapshot = new ArrayList<>(observers);
@@ -115,15 +148,19 @@ public class Order {
     // Status methods
     // ----------------------------
 
+    // Returns the current order status.
     public OrderStatus getStatus() {
         return status;
     }
 
+    // Indicates whether the order has been paid.
     public boolean isPaid() {
         return paid;
     }
 
+    // Updates the order status while enforcing valid lifecycle transitions.
     public void setStatus(OrderStatus newStatus) {
+        // Additional validation for processing state.
         if (newStatus == null || newStatus == this.status) {
             return;
         }
@@ -150,11 +187,12 @@ public class Order {
             }
         }
 
-        // Apply state change
+        // Apply state change and notify observers
         this.status = newStatus;
         notifyObservers(newStatus);
     }
 
+    // Validates allowed order status transitions.
     private boolean isValidTransition(OrderStatus from, OrderStatus to) {
         return switch (from) {
             case NEW -> (to == OrderStatus.PROCESSING || to == OrderStatus.CANCELLED);
@@ -168,6 +206,7 @@ public class Order {
     // Order item methods
     // ----------------------------
 
+    // Removes an item from the order by index.
     public void removeItem(int index) {
         if (index < 0 || index >= items.size()) {
             throw new IllegalArgumentException("Invalid item index: " + index);
@@ -175,6 +214,7 @@ public class Order {
         items.remove(index);
     }
 
+    // Calculates the subtotal of the order.
     public BigDecimal calculateSubtotal() {
         BigDecimal subtotal = BigDecimal.ZERO;
         for (OrderItem item : items) {
@@ -183,6 +223,7 @@ public class Order {
         return subtotal;
     }
 
+    // Prints a formatted summary of the order contents.
     public void printOrderSummary() {
         System.out.println("===========================================");
         System.out.println(" Order ID: " + orderId);
